@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passport Photo — Toolbox</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="tool-header">
+    <div class="container">
+      <a href="../../" class="back-link">← <span>Toolbox</span></a>
+      <h1>Passport Photo</h1>
+    </div>
+  </header>
+
+  <!-- Stepper -->
+  <div class="container">
+    <div class="stepper">
+      <div class="stepper-step active" data-step="1">
+        <span class="stepper-num">1</span>
+        <span>Upload</span>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" data-step="2">
+        <span class="stepper-num">2</span>
+        <span>Crop</span>
+      </div>
+      <div class="stepper-line"></div>
+      <div class="stepper-step" data-step="3">
+        <span class="stepper-num">3</span>
+        <span>Print</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool Body -->
+  <main class="tool-body">
+    <div class="container">
+
+      <!-- Step 1: Upload & Select Standard -->
+      <div class="step-panel active" id="step-1">
+        <div class="upload-area" id="upload-area">
+          <div class="upload-icon">📷</div>
+          <h3>Drop your photo here</h3>
+          <p>or click to browse — JPG, PNG supported</p>
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+        </div>
+
+        <div class="image-preview" id="image-preview">
+          <img id="preview-img" src="" alt="Preview">
+          <div class="file-info" id="file-info"></div>
+        </div>
+
+        <div class="standard-selector">
+          <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;">
+            Photo Standard
+          </label>
+          <div class="standard-grid" id="standard-grid">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-primary" id="btn-to-crop" disabled>
+            Continue to Crop →
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Crop & Adjust -->
+      <div class="step-panel" id="step-2">
+        <div class="crop-workspace">
+          <div class="crop-container">
+            <img id="crop-image" src="" alt="Crop">
+          </div>
+          <div class="crop-hint">Drag to move, scroll to zoom. The crop area matches your selected passport standard.</div>
+        </div>
+
+        <div class="step-actions">
+          <button class="btn btn-secondary" id="btn-back-upload">← Back</button>
+          <button class="btn btn-primary" id="btn-to-print">Continue to Print →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Print Layout & Download -->
+      <div class="step-panel" id="step-3">
+        <div class="layout-controls">
+          <div class="form-group">
+            <label>Paper Size</label>
+            <select class="form-select" id="paper-select">
+              <!-- Filled by JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Output Format</label>
+            <select class="form-select" id="format-select">
+              <option value="jpeg">JPEG (smaller file)</option>
+              <option value="png">PNG (lossless)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="preview-wrapper">
+          <canvas id="print-canvas"></canvas>
+          <div class="layout-info" id="layout-info"></div>
+          <div class="download-actions">
+            <button class="btn btn-secondary" id="btn-back-crop">← Back</button>
+            <button class="btn btn-primary btn-lg" id="btn-download">⬇ Download Print File</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      All processing happens in your browser. Your photos never leave your device.
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
