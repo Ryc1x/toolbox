@@ -1,6 +1,6 @@
 // ===== Passport Photo Standards =====
 const STANDARDS = [
-  { id: 'us',  name: 'US Passport',    w: 51,   h: 51,   label: '2 × 2 in (51 × 51 mm)' },
+  { id: 'us',  name: 'US Passport',    w: 50.8, h: 50.8, label: '2 × 2 in (51 × 51 mm)' },
   { id: 'cn1', name: 'China 1-inch',   w: 25,   h: 35,   label: '25 × 35 mm' },
   { id: 'cn2', name: 'China 2-inch',   w: 35,   h: 49,   label: '35 × 49 mm' },
   { id: 'eu',  name: 'EU / UK',        w: 35,   h: 45,   label: '35 × 45 mm' },
@@ -8,7 +8,7 @@ const STANDARDS = [
   { id: 'au',  name: 'Australia',      w: 35,   h: 45,   label: '35 × 45 mm' },
   { id: 'ca',  name: 'Canada',         w: 50,   h: 70,   label: '50 × 70 mm' },
   { id: 'kr',  name: 'South Korea',    w: 35,   h: 45,   label: '35 × 45 mm' },
-  { id: 'in',  name: 'India',          w: 51,   h: 51,   label: '2 × 2 in (51 × 51 mm)' },
+  { id: 'in',  name: 'India',          w: 50.8, h: 50.8, label: '2 × 2 in (51 × 51 mm)' },
 ];
 
 // Paper sizes in mm
@@ -283,25 +283,24 @@ function goToCrop() {
 function initCropper() {
   const cropImage = $('#crop-image');
   cropImage.src = state.currentImageURL;
-  cropImage.onload = () => {
-    if (state.cropper) state.cropper.destroy();
+  
+  if (state.cropper) state.cropper.destroy();
 
-    const { w, h } = state.standard;
-    state.cropper = new Cropper(cropImage, {
-      aspectRatio: w / h,
-      viewMode: 1,
-      dragMode: 'move',
-      autoCropArea: 0.85,
-      responsive: true,
-      guides: true,
-      center: true,
-      highlight: false,
-      background: false,
-      cropBoxResizable: true,
-      cropBoxMovable: true,
-      toggleDragModeOnDblclick: false,
-    });
-  };
+  const { w, h } = state.standard;
+  state.cropper = new Cropper(cropImage, {
+    aspectRatio: w / h,
+    viewMode: 1,
+    dragMode: 'move',
+    autoCropArea: 0.85,
+    responsive: true,
+    guides: true,
+    center: true,
+    highlight: false,
+    background: false,
+    cropBoxResizable: true,
+    cropBoxMovable: true,
+    toggleDragModeOnDblclick: false,
+  });
 }
 
 function addCurrentCrop() {
