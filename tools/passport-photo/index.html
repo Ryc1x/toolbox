@@ -80,20 +80,32 @@
           <div class="crop-hint">Drag to move, scroll to zoom. The crop area matches your selected passport standard.</div>
         </div>
 
-        <div class="step-actions">
+        <div class="step-actions crop-actions">
           <button class="btn btn-secondary" id="btn-back-upload">← Back</button>
-          <button class="btn btn-primary" id="btn-to-print">Continue to Print →</button>
+          <div class="crop-actions-right">
+            <button class="btn btn-primary" id="btn-add-photo">Add to Print</button>
+            <button class="btn btn-secondary" id="btn-add-another" style="display:none;">+ Add Another Person</button>
+            <button class="btn btn-primary" id="btn-to-print" disabled>Continue to Print →</button>
+          </div>
+        </div>
+
+        <!-- Photo Bank -->
+        <div class="photo-bank-section">
+          <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:8px;">
+            Photos Added
+          </label>
+          <p class="photo-bank-empty" id="photo-bank-empty">No photos added yet. Crop your photo and click "Add to Print".</p>
+          <div class="photo-bank" id="photo-bank" style="display:none;"></div>
         </div>
       </div>
 
       <!-- Step 3: Print Layout & Download -->
       <div class="step-panel" id="step-3">
+        <!-- Layout controls row -->
         <div class="layout-controls">
           <div class="form-group">
             <label>Paper Size</label>
-            <select class="form-select" id="paper-select">
-              <!-- Filled by JS -->
-            </select>
+            <select class="form-select" id="paper-select"></select>
           </div>
           <div class="form-group">
             <label>Output Format</label>
@@ -104,12 +116,29 @@
           </div>
         </div>
 
+        <!-- Border presets -->
+        <div class="border-preset-section">
+          <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:8px;">
+            Border Mode
+          </label>
+          <div class="border-presets" id="border-presets"></div>
+        </div>
+
+        <!-- Photo quantities -->
+        <div class="qty-section">
+          <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:8px;">
+            Photo Quantities
+          </label>
+          <div id="qty-controls"></div>
+        </div>
+
+        <!-- Preview & Download -->
         <div class="preview-wrapper">
           <canvas id="print-canvas"></canvas>
           <div class="layout-info" id="layout-info"></div>
           <div class="download-actions">
             <button class="btn btn-secondary" id="btn-back-crop">← Back</button>
-            <button class="btn btn-primary btn-lg" id="btn-download">⬇ Download Print File</button>
+            <button class="btn btn-primary btn-lg" id="btn-download">Download Print File</button>
           </div>
         </div>
       </div>

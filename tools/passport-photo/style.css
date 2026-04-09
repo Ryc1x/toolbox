@@ -159,6 +159,98 @@
   text-align: center;
 }
 
+.crop-actions {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.crop-actions-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== Photo Bank ===== */
+.photo-bank-section {
+  margin-top: 28px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+}
+
+.photo-bank-empty {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+}
+
+.photo-bank {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.photo-bank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  position: relative;
+}
+
+.photo-bank-item img {
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.photo-bank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.photo-label-input {
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: 120px;
+  color: #1a1a1a;
+}
+
+.photo-label-input:hover {
+  border-color: #e5e5e5;
+}
+
+.photo-label-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+}
+
+.photo-bank-remove {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.photo-bank-remove:hover {
+  color: #ef4444;
+}
+
 /* ===== Step 3: Print Layout ===== */
 .layout-controls {
   display: flex;
@@ -173,6 +265,133 @@
   min-width: 180px;
 }
 
+/* ===== Border Presets ===== */
+.border-preset-section {
+  margin-bottom: 20px;
+}
+
+.border-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.border-option {
+  padding: 10px 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.border-option:hover {
+  border-color: #c0c0c0;
+}
+
+.border-option.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.border-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.border-desc {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* ===== Quantity Controls ===== */
+.qty-section {
+  margin-bottom: 20px;
+}
+
+.qty-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.qty-thumb {
+  width: 36px;
+  height: auto;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.qty-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qty-spinner {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1a1a1a;
+  transition: background 0.15s;
+}
+
+.qty-btn:hover {
+  background: #f5f5f5;
+}
+
+.qty-btn:active {
+  background: #eee;
+}
+
+.qty-minus {
+  border-radius: 6px 0 0 6px;
+}
+
+.qty-plus {
+  border-radius: 0 6px 6px 0;
+}
+
+.qty-value {
+  width: 36px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+
+/* ===== Preview ===== */
 .preview-wrapper {
   background: #fff;
   border: 1px solid #e5e5e5;
@@ -244,5 +463,22 @@
 
   .crop-container {
     max-height: 400px;
+  }
+
+  .crop-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .crop-actions-right {
+    justify-content: flex-end;
+  }
+
+  .border-presets {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .photo-label-input {
+    width: 80px;
   }
 }
