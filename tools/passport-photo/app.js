@@ -235,11 +235,11 @@ function bindEvents() {
   });
   $('#nav-title-link').addEventListener('click', () => {
     if (state.currentImageURL || state.photos.length > 0) {
-      if (confirm('You will lose your current progress. Are you sure you want to leave?')) {
-        window.location.href = '../../';
+      if (confirm('You will lose your current progress. Are you sure you want to start over?')) {
+        window.location.reload();
       }
     } else {
-      window.location.href = '../../';
+      window.location.reload();
     }
   });
 
