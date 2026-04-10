@@ -282,26 +282,27 @@ function goToCrop() {
 
 function initCropper() {
   const cropImage = $('#crop-image');
+  if (state.cropper) {
+    state.cropper.destroy();
+    state.cropper = null;
+  }
   cropImage.src = state.currentImageURL;
-  cropImage.onload = () => {
-    if (state.cropper) state.cropper.destroy();
 
-    const { w, h } = state.standard;
-    state.cropper = new Cropper(cropImage, {
-      aspectRatio: w / h,
-      viewMode: 1,
-      dragMode: 'move',
-      autoCropArea: 0.85,
-      responsive: true,
-      guides: true,
-      center: true,
-      highlight: false,
-      background: false,
-      cropBoxResizable: true,
-      cropBoxMovable: true,
-      toggleDragModeOnDblclick: false,
-    });
-  };
+  const { w, h } = state.standard;
+  state.cropper = new Cropper(cropImage, {
+    aspectRatio: w / h,
+    viewMode: 1,
+    dragMode: 'move',
+    autoCropArea: 0.85,
+    responsive: true,
+    guides: true,
+    center: true,
+    highlight: false,
+    background: false,
+    cropBoxResizable: true,
+    cropBoxMovable: true,
+    toggleDragModeOnDblclick: false,
+  });
 }
 
 function addCurrentCrop() {
