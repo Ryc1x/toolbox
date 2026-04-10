@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Toolbox — Simple tools for everyday tasks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
     /* Landing-page specific: subtle gradient bg */
@@ -15,7 +18,10 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <a href="/" class="site-logo"><span>/</span>toolbox</a>
+      <div class="site-brand">
+        <a href="/toolbox/" class="site-logo"><span>/</span>toolbox</a>
+        <span class="version-badge">v0.1</span>
+      </div>
       <nav class="site-nav">
         <a href="https://github.com/ryc1x/toolbox" target="_blank" rel="noopener">GitHub</a>
       </nav>
@@ -39,14 +45,26 @@
         <span class="arrow">Open tool</span>
       </a>
 
-      <!-- Add more tool cards here -->
+      <a href="tools/json-formatter/" class="tool-card">
+        <div class="icon">⚙️</div>
+        <h3>JSON Formatter</h3>
+        <p>Format, beautify, and validate your JSON strings instantly. Useful for reading messy API responses.</p>
+        <span class="arrow">Open tool</span>
+      </a>
+
+      <a href="tools/uuid-generator/" class="tool-card">
+        <div class="icon">🔑</div>
+        <h3>UUID Generator</h3>
+        <p>Generate random universally unique identifiers (v4) to use in your forms and databases quickly.</p>
+        <span class="arrow">Open tool</span>
+      </a>
 
     </div>
   </main>
 
   <footer class="site-footer">
     <div class="container">
-      All processing happens in your browser. Your photos never leave your device.
+      Open-source tools for developers and everyday tasks. Client-side processing only.
     </div>
   </footer>
 </body>

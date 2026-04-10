@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter — Toolbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="tool-header">
+    <div class="container">
+      <a href="../../" class="back-link">← <span>Toolbox</span></a>
+      <h1>JSON Formatter</h1>
+    </div>
+  </header>
+
+  <main class="tool-body">
+    <div class="container">
+      <div class="json-workspace">
+        <!-- Input pane -->
+        <div class="pane">
+          <div class="pane-header">
+            <h3>Input JSON</h3>
+            <div class="actions">
+              <button class="btn btn-secondary btn-sm" id="btn-paste">Paste</button>
+              <button class="btn btn-secondary btn-sm" id="btn-clear">Clear</button>
+            </div>
+          </div>
+          <textarea id="json-input" placeholder="Paste your raw or messy JSON here..."></textarea>
+        </div>
+
+        <!-- Formatting options -->
+        <div class="controls-col">
+          <button class="btn btn-primary" id="btn-format">Format &rarr;</button>
+          <button class="btn btn-secondary" id="btn-minify">Minify &rarr;</button>
+          <div class="form-group" style="margin-top:20px;">
+            <label>Indent</label>
+            <select class="form-select" id="indent-select">
+              <option value="2">2 Spaces</option>
+              <option value="4">4 Spaces</option>
+              <option value="tab">Tab</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Output pane -->
+        <div class="pane">
+          <div class="pane-header">
+            <h3>Output</h3>
+            <div class="actions">
+              <button class="btn btn-secondary btn-sm" id="btn-copy">Copy Result</button>
+            </div>
+          </div>
+          <div class="output-wrapper">
+            <textarea id="json-output" readonly placeholder="Formatted JSON will appear here..."></textarea>
+            <div id="error-message" class="error-msg" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      All processing happens in your browser. Your data never leaves your device.
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
