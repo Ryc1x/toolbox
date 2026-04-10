@@ -21,20 +21,25 @@
 
 /* ===== Step 1: Upload ===== */
 .upload-area {
-  border: 2px dashed #d4d4d4;
+  border: 2px dashed rgba(37, 99, 235, 0.3);
   border-radius: 16px;
   padding: 64px 32px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
-  background: #fff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .upload-area:hover,
 .upload-area.dragover {
   border-color: #2563eb;
-  background: #f8faff;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
 }
 
 .upload-area .upload-icon {
@@ -73,14 +78,16 @@
 
 .standard-option {
   padding: 14px 16px;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s;
-  background: #fff;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .standard-option:hover {
@@ -111,11 +118,13 @@
 
 /* ===== Step 2: Crop ===== */
 .crop-workspace {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .crop-container {
@@ -173,10 +182,12 @@
 /* ===== Photo Bank ===== */
 .photo-bank-section {
   margin-top: 28px;
-  padding: 20px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .photo-bank-empty {
@@ -277,15 +288,17 @@
 }
 
 .border-option {
-  padding: 10px 14px;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s;
-  background: #fff;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .border-option:hover {
@@ -393,14 +406,16 @@
 
 /* ===== Preview ===== */
 .preview-wrapper {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  padding: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
 .preview-wrapper canvas {

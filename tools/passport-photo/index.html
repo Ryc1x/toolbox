@@ -15,8 +15,8 @@
   <!-- Header -->
   <header class="tool-header">
     <div class="container">
-      <a href="../../" class="back-link">← <span>Toolbox</span></a>
-      <h1>Passport Photo</h1>
+      <a href="../../" class="back-link" id="nav-back-link">← <span>Toolbox</span></a>
+      <h1 id="nav-title-link" style="cursor:pointer;">Passport Photo</h1>
     </div>
   </header>
 
@@ -48,9 +48,12 @@
       <div class="step-panel active" id="step-1">
         <div class="upload-area" id="upload-area">
           <div class="upload-icon">📷</div>
-          <h3>Drop your photo here</h3>
-          <p>or click to browse — JPG, PNG supported</p>
+          <h3 id="upload-title">Drop your photo here</h3>
+          <p id="upload-subtitle">or click to browse — JPG, PNG supported</p>
           <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp">
+        </div>
+        <div style="text-align: center; margin-top: 16px; display: none;" id="cancel-add-container">
+          <button class="btn btn-secondary btn-sm" id="btn-cancel-add">Cancel adding new person</button>
         </div>
 
         <div class="image-preview" id="image-preview">
@@ -64,6 +67,12 @@
           </label>
           <div class="standard-grid" id="standard-grid">
             <!-- Filled by JS -->
+          </div>
+          <div id="custom-size-inputs" style="display:none; margin-top:16px; gap:8px; align-items:center;">
+            <label style="font-size:0.85rem;font-weight:500;">Width (mm):</label>
+            <input type="number" id="custom-w" value="35" step="1" min="10" style="width:70px; padding:6px; border:1px solid #ccc; border-radius:4px;">
+            <label style="font-size:0.85rem;font-weight:500; margin-left:8px;">Height (mm):</label>
+            <input type="number" id="custom-h" value="45" step="1" min="10" style="width:70px; padding:6px; border:1px solid #ccc; border-radius:4px;">
           </div>
         </div>
 
@@ -87,16 +96,18 @@
           <button class="btn btn-secondary" id="btn-back-upload">← Back</button>
           <div class="crop-actions-right">
             <button class="btn btn-primary" id="btn-add-photo">Add to Print</button>
-            <button class="btn btn-secondary" id="btn-add-another" style="display:none;">+ Add Another Person</button>
             <button class="btn btn-primary" id="btn-to-print" disabled>Continue to Print →</button>
           </div>
         </div>
 
         <!-- Photo Bank -->
         <div class="photo-bank-section">
-          <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:8px;">
-            Photos Added
-          </label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <label style="font-size:0.8rem;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.04em;margin:0;">
+              Photos Added
+            </label>
+            <button class="btn btn-secondary btn-sm" id="btn-add-another" style="display:none;padding:4px 10px;font-size:0.75rem;">+ Add Another Person</button>
+          </div>
           <p class="photo-bank-empty" id="photo-bank-empty">No photos added yet. Crop your photo and click "Add to Print".</p>
           <div class="photo-bank" id="photo-bank" style="display:none;"></div>
         </div>
@@ -109,6 +120,13 @@
           <div class="form-group">
             <label>Paper Size</label>
             <select class="form-select" id="paper-select"></select>
+          </div>
+          <div class="form-group">
+            <label>Orientation</label>
+            <select class="form-select" id="orientation-select">
+              <option value="landscape" selected>Landscape</option>
+              <option value="portrait">Portrait</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Output Format</label>

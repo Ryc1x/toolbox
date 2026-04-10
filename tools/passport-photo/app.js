@@ -9,6 +9,7 @@ const STANDARDS = [
   { id: 'ca',  name: 'Canada',         w: 50,   h: 70,   label: '50 × 70 mm' },
   { id: 'kr',  name: 'South Korea',    w: 35,   h: 45,   label: '35 × 45 mm' },
   { id: 'in',  name: 'India',          w: 50.8, h: 50.8, label: '2 × 2 in (51 × 51 mm)' },
+  { id: 'custom', name: 'Custom Size', w: 35,   h: 45,   label: 'Define width x height', isCustom: true },
 ];
 
 // Paper sizes in mm
@@ -25,10 +26,9 @@ const PAPERS = [
 
 // Border / gutter presets
 const BORDER_PRESETS = [
-  { id: 'compact',  name: 'Compact (no gap)',  gutterMm: 0,   align: 'corner', desc: 'Edge-to-edge, use paper edge as cut line' },
-  { id: 'thin',     name: 'Thin guides (1mm)', gutterMm: 1,   align: 'corner', desc: 'Minimal gap, photos start from corner' },
-  { id: 'standard', name: 'Standard (2mm)',     gutterMm: 2,   align: 'center', desc: 'Centered with cutting guides' },
-  { id: 'wide',     name: 'Wide (5mm)',         gutterMm: 5,   align: 'center', desc: 'Easy cutting, centered layout' },
+  { id: 'compact',  name: 'Compact (Crop marks)', gutterMm: 0, align: 'center', desc: 'Zero gap, small guide marks around boundaries' },
+  { id: 'dotted',   name: 'Compact (Dotted borders)', gutterMm: 0, align: 'center', desc: 'Zero gap, full dashed lines directly bordering photos' },
+  { id: 'standard', name: 'Spaced (2mm gap)', gutterMm: 2, align: 'center', desc: 'Centered layout with 2mm cutting space' },
 ];
 
 const DPI = 300;
@@ -43,9 +43,11 @@ let state = {
   // Current upload in progress
   currentFile: null,
   currentImageURL: null,
-  // Print settings
   paper: PAPERS[0],
   borderPreset: BORDER_PRESETS[0],
+  orientation: 'landscape',
+  isAddingAnother: false,
+  autoCropped: false,
 };
 
 // ===== DOM References =====
@@ -193,11 +195,55 @@ function bindEvents() {
     if (!option) return;
     $$('.standard-option').forEach(el => el.classList.remove('selected'));
     option.classList.add('selected');
-    state.standard = STANDARDS.find(s => s.id === option.dataset.id);
+    
+    const newStd = STANDARDS.find(s => s.id === option.dataset.id);
+    if (state.standard !== newStd) {
+      state.standard = newStd;
+      // Changing standard invalidates existing crops, because layout demands uniform sizing
+      state.photos = []; 
+      renderPhotoBank();
+    }
+
+    if (state.standard.isCustom) {
+      $('#custom-size-inputs').style.display = 'flex';
+      updateCustomSize();
+    } else {
+      $('#custom-size-inputs').style.display = 'none';
+      if (state.cropper) initCropper();
+    }
   });
 
+  function updateCustomSize() {
+    if (!state.standard.isCustom) return;
+    state.standard.w = parseFloat($('#custom-w').value) || 35;
+    state.standard.h = parseFloat($('#custom-h').value) || 45;
+    state.photos = [];
+    renderPhotoBank();
+    if (state.cropper) initCropper();
+  }
+
+  $('#custom-w').addEventListener('change', updateCustomSize);
+  $('#custom-h').addEventListener('change', updateCustomSize);
+
   // Navigation
-  $('#btn-to-crop').addEventListener('click', goToCrop);
+  $('#nav-back-link').addEventListener('click', (e) => {
+    if (state.currentImageURL || state.photos.length > 0) {
+      if (!confirm('You will lose your current progress. Are you sure you want to leave?')) {
+        e.preventDefault();
+      }
+    }
+  });
+  $('#nav-title-link').addEventListener('click', () => {
+    if (state.currentImageURL || state.photos.length > 0) {
+      if (confirm('You will lose your current progress. Are you sure you want to leave?')) {
+        window.location.href = '../../';
+      }
+    } else {
+      window.location.href = '../../';
+    }
+  });
+
+  $('#btn-to-crop').addEventListener('click', () => goToStep(2));
   $('#btn-back-upload').addEventListener('click', () => goToStep(1));
   $('#btn-add-photo').addEventListener('click', addCurrentCrop);
   $('#btn-add-another').addEventListener('click', resetForAnotherPhoto);
@@ -208,9 +254,29 @@ function bindEvents() {
     if (state.currentImageURL) initCropper();
   });
 
+  $('#btn-cancel-add').addEventListener('click', () => {
+    state.isAddingAnother = false;
+    $('#cancel-add-container').style.display = 'none';
+    $('#upload-title').textContent = 'Drop your photo here';
+    goToStep(2);
+  });
+
+  window.addEventListener('popstate', (e) => {
+    const step = e.state?.step || 1;
+    goToStep(step, false);
+  });
+
   // Paper selection
   $('#paper-select').addEventListener('change', () => {
     state.paper = PAPERS.find(p => p.id === $('#paper-select').value);
+    if (state.photos.length === 1) state.photos[0].qty = calcGridSlots();
+    renderPrintPreview();
+  });
+
+  // Orientation selection
+  $('#orientation-select').addEventListener('change', (e) => {
+    state.orientation = e.target.value;
+    if (state.photos.length === 1) state.photos[0].qty = calcGridSlots();
     renderPrintPreview();
   });
 
@@ -221,6 +287,7 @@ function bindEvents() {
     $$('.border-option').forEach(el => el.classList.remove('selected'));
     option.classList.add('selected');
     state.borderPreset = BORDER_PRESETS.find(b => b.id === option.dataset.id);
+    if (state.photos.length === 1) state.photos[0].qty = calcGridSlots();
     renderPrintPreview();
   });
 
@@ -235,8 +302,19 @@ function handleFileSelect(e) {
 }
 
 function loadFile(file) {
+  if (state.isAddingAnother) {
+    if (state.currentImageURL) URL.revokeObjectURL(state.currentImageURL);
+    if (state.cropper) {
+      state.cropper.destroy();
+      state.cropper = null;
+    }
+    state.isAddingAnother = false;
+    $('#cancel-add-container').style.display = 'none';
+  } else {
+    if (state.currentImageURL) URL.revokeObjectURL(state.currentImageURL);
+  }
+
   state.currentFile = file;
-  if (state.currentImageURL) URL.revokeObjectURL(state.currentImageURL);
   state.currentImageURL = URL.createObjectURL(file);
 
   const preview = $('#image-preview');
@@ -248,15 +326,19 @@ function loadFile(file) {
   $('#file-info').textContent = `${file.name} — ${sizeMB} MB`;
 
   const uploadArea = $('#upload-area');
-  uploadArea.querySelector('h3').textContent = 'Photo loaded';
-  uploadArea.querySelector('p').textContent = 'Drop another photo to replace';
+  $('#upload-title').textContent = 'Photo loaded';
+  $('#upload-subtitle').textContent = 'Drop another photo to replace';
 
   $('#btn-to-crop').disabled = false;
 }
 
 // ===== Step Navigation =====
-function goToStep(n) {
-  if (state.cropper && n !== 2) {
+function goToStep(n, pushHistory = true) {
+  // Fail-safe routing fixes
+  if (n === 2 && !state.currentImageURL) n = 1;
+  if (n === 3 && state.photos.length === 0 && !state.currentImageURL) n = 1;
+
+  if (state.cropper && n !== 2 && !state.isAddingAnother) {
     state.cropper.destroy();
     state.cropper = null;
   }
@@ -270,15 +352,35 @@ function goToStep(n) {
     if (stepNum === n) s.classList.add('active');
     else if (stepNum < n) s.classList.add('done');
   });
+
+  // History API
+  if (pushHistory) {
+    const url = new URL(window.location);
+    url.searchParams.set('step', n);
+    window.history.pushState({ step: n }, '', url);
+  }
+
+  // Lifecycle calls per step
+  if (n === 1) {
+    // If not adding another, and returning to step 1, setup for brand new
+    if (!state.isAddingAnother) {
+      $('#cancel-add-container').style.display = 'none';
+      if (state.currentImageURL) $('#upload-title').textContent = 'Photo loaded';
+      else $('#upload-title').textContent = 'Drop your photo here';
+    }
+  } else if (n === 2) {
+    $('.photo-bank-section').style.display = 'block';
+    $('#btn-add-photo').style.display = 'inline-flex';
+    $('#btn-to-print').disabled = false;
+    renderPhotoBank();
+    updateCropStepButtons();
+    if (state.currentImageURL && !state.cropper) {
+       initCropper();
+    }
+  }
 }
 
-// ===== Step 2: Crop =====
-function goToCrop() {
-  goToStep(2);
-  renderPhotoBank();
-  updateCropStepButtons();
-  initCropper();
-}
+// function goToCrop has been safely moved into the generic goToStep lifecycle, but let's keep a placeholder if any buttons directly call it.
 
 function initCropper() {
   const cropImage = $('#crop-image');
@@ -305,6 +407,8 @@ function initCropper() {
 
 function addCurrentCrop() {
   if (!state.cropper) return;
+
+  state.autoCropped = false;
 
   const { w, h } = state.standard;
   const pxW = Math.round(w / 25.4 * DPI);
@@ -340,42 +444,51 @@ function addCurrentCrop() {
 }
 
 function resetForAnotherPhoto() {
-  // Reset upload state for a new person
-  state.currentFile = null;
-  if (state.currentImageURL) URL.revokeObjectURL(state.currentImageURL);
-  state.currentImageURL = null;
-
-  if (state.cropper) {
-    state.cropper.destroy();
-    state.cropper = null;
-  }
-
-  // Clear the crop image
-  $('#crop-image').src = '';
-
-  // Go back to step 1 to upload a new photo, but keep photo bank
+  state.isAddingAnother = true;
   goToStep(1);
 
-  // Reset upload area
-  const uploadArea = $('#upload-area');
-  uploadArea.querySelector('h3').textContent = 'Drop your photo here';
-  uploadArea.querySelector('p').textContent = 'or click to browse — JPG, PNG supported';
+  $('#upload-title').textContent = 'Upload next person\'s photo';
+  $('#upload-subtitle').textContent = 'Drop or click to browse for the next batch';
   $('#image-preview').classList.remove('visible');
   $('#file-input').value = '';
   $('#btn-to-crop').disabled = true;
+  $('#cancel-add-container').style.display = 'block';
 }
 
 function updateCropStepButtons() {
   const hasPhotos = state.photos.length > 0;
-  $('#btn-to-print').disabled = !hasPhotos;
+  $('#btn-to-print').disabled = false;
   $('#btn-add-another').style.display = hasPhotos ? 'inline-flex' : 'none';
 }
 
 // ===== Step 3: Print Layout =====
 function goToPrint() {
+  // Always update auto-crop on 'Continue to Print' in case they tweaked cropper
+  if (state.cropper && (state.photos.length === 0 || state.autoCropped)) {
+    const { w, h } = state.standard;
+    const pxW = Math.round(w / 25.4 * DPI);
+    const pxH = Math.round(h / 25.4 * DPI);
+
+    const croppedCanvas = state.cropper.getCroppedCanvas({
+      width: pxW,
+      height: pxH,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+    });
+
+    state.photos = [{
+      id: 1,
+      label: 'Photo',
+      croppedCanvas,
+      imageURL: state.currentImageURL,
+      qty: 0
+    }];
+    state.autoCropped = true;
+  }
+
   // Set default quantities: if all are 0, set them to fill the paper
   const totalQty = state.photos.reduce((s, p) => s + p.qty, 0);
-  if (totalQty === 0) {
+  if (totalQty === 0 || state.photos.length === 1) {
     // Auto-fill: distribute evenly
     const slots = calcGridSlots();
     const perPhoto = Math.max(1, Math.floor(slots / state.photos.length));
@@ -383,12 +496,27 @@ function goToPrint() {
   }
 
   goToStep(3);
-  renderQuantityControls();
+  
+  if (state.photos.length === 1) {
+    $('.qty-section').style.display = 'none';
+  } else {
+    $('.qty-section').style.display = 'block';
+    renderQuantityControls();
+  }
+  
   renderPrintPreview();
 }
 
-function calcGridSlots() {
+function getPaperDimensions() {
   const paper = state.paper;
+  if (state.orientation === 'landscape') {
+    return { w: Math.max(paper.w, paper.h), h: Math.min(paper.w, paper.h), name: paper.name, id: paper.id };
+  }
+  return { w: Math.min(paper.w, paper.h), h: Math.max(paper.w, paper.h), name: paper.name, id: paper.id };
+}
+
+function calcGridSlots() {
+  const paper = getPaperDimensions();
   const std = state.standard;
   const preset = state.borderPreset;
   const gutterMm = preset.gutterMm;
@@ -405,7 +533,7 @@ function calcGridSlots() {
 }
 
 function renderPrintPreview() {
-  const paper = state.paper;
+  const paper = getPaperDimensions();
   const std = state.standard;
   const preset = state.borderPreset;
   const gutterPx = Math.round(preset.gutterMm / 25.4 * DPI);
@@ -473,50 +601,74 @@ function renderPrintPreview() {
     }
   }
 
-  // Draw cutting guides (only when gutter > 0)
-  if (gutterPx > 0) {
+  // Draw cutting guides
+  if (preset.id === 'dotted' || gutterPx > 0) {
     ctx.strokeStyle = '#ccc';
     ctx.lineWidth = 1;
     ctx.setLineDash([8, 6]);
 
-    const gridW = cols * photoPxW + (cols - 1) * gutterPx;
-    const gridH = rows * photoPxH + (rows - 1) * gutterPx;
-    const guideExtend = Math.round(2 / 25.4 * DPI); // 2mm extension
+    const lineExtend = gutterPx > 0 ? gutterPx / 2 : 0;
+    const drawGridW = cols * photoPxW + (cols > 0 ? (cols - 1) * gutterPx : 0);
+    const drawGridH = rows * photoPxH + (rows > 0 ? (rows - 1) * gutterPx : 0);
 
-    // Vertical cut lines between columns
-    for (let c = 1; c < cols; c++) {
-      const x = offsetX + c * (photoPxW + gutterPx) - gutterPx / 2;
+    // Vertical cut lines
+    for (let c = 0; c <= cols; c++) {
+      const x = offsetX + c * (photoPxW + gutterPx) - lineExtend;
+      // Do not stroke dashed line exactly on the physical edge
+      if (Math.abs(x) < 2 || Math.abs(x - paperPxW) < 2) continue;
+
       ctx.beginPath();
-      ctx.moveTo(x, Math.max(0, offsetY - guideExtend));
-      ctx.lineTo(x, Math.min(paperPxH, offsetY + gridH + guideExtend));
+      ctx.moveTo(x, offsetY - lineExtend);
+      ctx.lineTo(x, offsetY + drawGridH + lineExtend);
       ctx.stroke();
     }
 
-    // Horizontal cut lines between rows
-    for (let r = 1; r < rows; r++) {
-      const y = offsetY + r * (photoPxH + gutterPx) - gutterPx / 2;
+    // Horizontal cut lines
+    for (let r = 0; r <= rows; r++) {
+      const y = offsetY + r * (photoPxH + gutterPx) - lineExtend;
+      // Do not stroke dashed line exactly on the physical edge
+      if (Math.abs(y) < 2 || Math.abs(y - paperPxH) < 2) continue;
+
       ctx.beginPath();
-      ctx.moveTo(Math.max(0, offsetX - guideExtend), y);
-      ctx.lineTo(Math.min(paperPxW, offsetX + gridW + guideExtend), y);
+      ctx.moveTo(offsetX - lineExtend, y);
+      ctx.lineTo(offsetX + drawGridW + lineExtend, y);
       ctx.stroke();
     }
 
     ctx.setLineDash([]);
   }
 
-  // Corner crop marks for compact mode (tiny L-shaped marks at corners)
-  if (preset.align === 'corner' && gutterPx === 0) {
+  // Corner crop marks for compact mode
+  if (preset.id === 'compact') {
     ctx.strokeStyle = '#bbb';
     ctx.lineWidth = 1;
     ctx.setLineDash([]);
     const markLen = Math.round(3 / 25.4 * DPI); // 3mm marks
 
-    // Draw marks at each internal grid intersection
+    const gridW = cols * photoPxW;
+    const gridH = rows * photoPxH;
+
+    // Outer edge boundary marks pointing outward from the grid bounds
+    for (let r = 0; r <= rows; r++) {
+      const y = offsetY + r * photoPxH;
+      // Left side tick
+      ctx.beginPath(); ctx.moveTo(offsetX - markLen, y); ctx.lineTo(offsetX, y); ctx.stroke();
+      // Right side tick
+      ctx.beginPath(); ctx.moveTo(offsetX + gridW, y); ctx.lineTo(offsetX + gridW + markLen, y); ctx.stroke();
+    }
+    for (let c = 0; c <= cols; c++) {
+      const x = offsetX + c * photoPxW;
+      // Top side tick
+      ctx.beginPath(); ctx.moveTo(x, offsetY - markLen); ctx.lineTo(x, offsetY); ctx.stroke();
+      // Bottom side tick
+      ctx.beginPath(); ctx.moveTo(x, offsetY + gridH); ctx.lineTo(x, offsetY + gridH + markLen); ctx.stroke();
+    }
+
+    // Internal intersection crosses
     for (let r = 1; r < rows; r++) {
       for (let c = 1; c < cols; c++) {
-        const x = c * photoPxW;
-        const y = r * photoPxH;
-        // Cross mark
+        const x = offsetX + c * photoPxW;
+        const y = offsetY + r * photoPxH;
         ctx.beginPath();
         ctx.moveTo(x - markLen, y);
         ctx.lineTo(x + markLen, y);
@@ -555,7 +707,7 @@ function downloadPrint() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `passport-photo-${state.standard.id}-${state.paper.id}.${ext}`;
+    a.download = `passport-photo-${state.standard.id}-${getPaperDimensions().id}-${state.orientation}.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
